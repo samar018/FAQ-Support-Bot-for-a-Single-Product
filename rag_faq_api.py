@@ -168,7 +168,7 @@ def rag_answer(question: str) -> FAQResponse:
             "question": question,
             "retrieved_snippets": context,
             "attempted_answer": answer,
-            "confidence": top_score,
+            "confidence": float(top_score),
             "confidence_label": compute_confidence_label(top_score),
             "escalation_request_id": escalation_id
         }

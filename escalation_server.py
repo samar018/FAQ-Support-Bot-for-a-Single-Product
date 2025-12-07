@@ -1,23 +1,27 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List
+# escalation_server.py
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Escalation Server")
 
-class EscalationMessage(BaseModel):
-    question: str
-    retrieved_docs: List[str]
-    answer: str
-    confidence: float
+# Allow frontend to fetch escalations
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Store escalated messages in memory
 escalated_messages = []
 
 @app.post("/escalate")
-def escalate(msg: EscalationMessage):
-    escalated_messages.append(msg)
-    return {"status": "received", "total": len(escalated_messages)}
+async def receive_escalation(req: Request):
+    data = await req.json()
+    escalated_messages.append(data)
+    print("⚠️ Escalation received:", data)
+    return {"status": "received"}
 
-@app.get("/messages")
-def get_messages():
+@app.get("/escalations")
+async def get_escalations():
     return {"escalated_messages": escalated_messages}
